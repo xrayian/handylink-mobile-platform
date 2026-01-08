@@ -1,6 +1,6 @@
 # Dependencies
 node_modules/
-
+TEMPLATE_*
 # Environment
 .env
 .env.local
