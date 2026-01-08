@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, ActivityIndicator, Alert, RefreshControl, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import { StarIcon } from 'react-native-heroicons/solid';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
@@ -237,7 +238,7 @@ const CustomerDashboardScreen = () => {
                              <View className="flex-1">
                                 <Text className="font-bold text-gray-900 text-lg truncate">{handyman.name}</Text>
                                 <View className="flex-row items-center mt-1">
-                                    <Feather name="star" size={14} color="#EAB308" />
+                                    <StarIcon size={14} color="#EAB308" />
                                     <Text className="text-gray-900 font-bold ml-1 text-sm">{parseFloat(handyman.rating).toFixed(1)}</Text>
                                     <Text className="text-gray-400 text-xs ml-1">({handyman.reviews})</Text>
                                 </View>
@@ -288,7 +289,7 @@ const CustomerDashboardScreen = () => {
                             <View className="flex-1">
                                 <Text className="text-xs font-bold text-gray-900">{gig.handyman_name}</Text>
                                 <View className="flex-row items-center">
-                                    <Feather name="star" size={10} color="#EAB308" />
+                                    <StarIcon size={10} color="#EAB308" />
                                     {/* Handle rating logic safely */}
                                     <Text className="text-xs text-gray-600 ml-1">
                                         { parseFloat(gig.avg_rating).toFixed(1) || 'N/A'} ({gig.reviews || gig.review_count || 0})

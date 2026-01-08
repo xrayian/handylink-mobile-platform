@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator, Alert, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import { StarIcon } from 'react-native-heroicons/solid';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import api from '../../services/api';
@@ -166,14 +167,14 @@ const HandymanDashboardScreen = () => {
         {/* Rating Card (Full Width) */}
         <View className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden mb-8">
              <View className="absolute right-0 top-0 p-3 opacity-10 bg-yellow-400 rounded-bl-3xl">
-                 <Feather name="star" size={50} color="black" />
+                 <StarIcon size={50} color="black" />
              </View>
              <Text className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Rating</Text>
              <View className="flex-row items-center gap-2">
                  <Text className="text-3xl font-bold text-gray-900">{parseFloat(stats?.avg_rating || 0).toFixed(1)}</Text>
                  <View className="flex-row">
                      {[1,2,3,4,5].map(i => (
-                         <Feather key={i} name="star" size={16} color={i <= Math.round(stats?.avg_rating || 0) ? "#FACC15" : "#E5E7EB"} />
+                         <StarIcon key={i} size={16} color={i <= Math.round(stats?.avg_rating || 0) ? "#FACC15" : "#E5E7EB"} />
                      ))}
                  </View>
              </View>

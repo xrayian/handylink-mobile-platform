@@ -32,12 +32,28 @@ const AppStack = () => {
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="About" component={AboutScreen} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
-      <Stack.Screen name="GigDetails" component={GigDetailsScreen} />
-      <Stack.Screen name="HandymanProfile" component={HandymanProfileScreen} />
+      <Stack.Screen 
+        name="GigDetails" 
+        component={GigDetailsScreen} 
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="HandymanProfile" 
+        component={HandymanProfileScreen} 
+        options={{ headerShown: false }}
+      />
       
       {/* Role Specific Screens */}
-      <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
-      <Stack.Screen name="HandymanDashboard" component={HandymanDashboardScreen} />
+      <Stack.Screen 
+        name="AdminDashboard" 
+        component={AdminDashboardScreen} 
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="HandymanDashboard" 
+        component={HandymanDashboardScreen} 
+        options={{ headerShown: false }}
+      />
       
       {/* Customer Tabs (Replaces CustomerDashboardScreen direct access) */}
        <Stack.Screen 
@@ -47,7 +63,11 @@ const AppStack = () => {
        />
       
        {/* Other features */}
-      <Stack.Screen name="CreateGig" component={CreateGigScreen} />
+      <Stack.Screen 
+        name="CreateGig" 
+        component={CreateGigScreen} 
+        options={{ headerShown: false }}
+      />
       
     </Stack.Navigator>
   );

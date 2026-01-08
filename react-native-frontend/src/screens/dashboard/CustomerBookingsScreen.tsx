@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import { StarIcon } from 'react-native-heroicons/solid';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import api from '../../services/api';
 
@@ -38,11 +39,12 @@ const CustomerBookingsScreen = () => {
 
   const getStatusColor = (status) => {
       switch(status) {
-          case 'pending': return 'text-yellow-600 bg-yellow-50';
-          case 'confirmed': return 'text-blue-600 bg-blue-50';
-          case 'completed': return 'text-green-600 bg-green-50';
-          case 'cancelled': return 'text-red-600 bg-red-50';
-          default: return 'text-gray-600 bg-gray-50';
+          case 'pending': return { text: 'text-yellow-700', bg: 'bg-yellow-100' };
+          case 'confirmed': 
+          case 'approved': return { text: 'text-blue-700', bg: 'bg-blue-100' };
+          case 'completed': return { text: 'text-green-700', bg: 'bg-green-100' };
+          case 'cancelled': return { text: 'text-red-700', bg: 'bg-red-100' };
+          default: return { text: 'text-gray-700', bg: 'bg-gray-100' };
       }
   };
 
@@ -77,12 +79,13 @@ const CustomerBookingsScreen = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
-       <View className="px-4 py-4 bg-white border-b border-gray-100 flex-row items-center justify-between">
-           <Text className="text-xl font-bold text-gray-900">Your Activity</Text>
+    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+       <View className="px-4 py-6 border-b border-gray-100 bg-white">
+           <Text className="text-3xl font-bold text-gray-900">Your Activity</Text>
+           <Text className="text-gray-500 mt-1 text-base">Track your service requests</Text>
        </View>
 
-       <ScrollView className="flex-1 px-4 pt-6 pb-20">
+       <ScrollView className="flex-1 px-4 pt-6 pb-20 bg-gray-50">
            {loading ? (
              <View className="items-center justify-center py-20">
                <ActivityIndicator size="large" color="black" />
@@ -102,27 +105,29 @@ const CustomerBookingsScreen = () => {
                    </TouchableOpacity>
                </View>
            ) : (
-               <View className="space-y-4">
-                   {bookings.map((booking) => (
-                       <View key={booking.id} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+               <View className="space-y-4 pb-24">
+                   {bookings.map((booking) => {
+                       const statusColors = getStatusColor(booking.status);
+                       return (
+                       <View key={booking.id} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm mb-4">
                            <View className="flex-row justify-between items-start mb-4">
-                               <View className="flex-row gap-4">
-                                   <View className="w-12 h-12 bg-gray-100 rounded-xl items-center justify-center">
+                               <View className="flex-row gap-4 flex-1 mr-2">
+                                   <View className="w-12 h-12 bg-gray-100 rounded-xl items-center justify-center shrink-0">
                                        <Text className="text-2xl">🛠️</Text>
                                    </View>
-                                   <View>
-                                       <Text className="font-bold text-lg text-gray-900 leading-tight">{booking.gig_title}</Text>
-                                       <Text className="text-gray-500 text-sm mt-1">with {booking.handyman_name}</Text>
+                                   <View className="flex-1">
+                                       <Text className="font-bold text-lg text-gray-900 leading-tight" numberOfLines={2}>
+                                           {booking.gig_title}
+                                       </Text>
+                                       <Text className="text-gray-500 text-sm mt-1" numberOfLines={1}>
+                                            with {booking.handyman_name}
+                                       </Text>
                                    </View>
                                </View>
-                               <View className="items-end">
-                                   <Text className="font-bold text-gray-900">৳{booking.total_price}</Text>
-                                   <View className={`mt-1 px-2 py-1 rounded-md ${getStatusColor(booking.status)}`}>
-                                       <Text className={`text-xs font-bold uppercase`}>
-                                            {/* We need to extract the text color from the className string or just reconstruct it. 
-                                                NativeWind handles classes, but text color inheritance inside View needs Text styling.
-                                                Simpler approach:
-                                            */}
+                               <View className="items-end shrink-0">
+                                   <Text className="font-bold text-gray-900 text-lg">৳{booking.total_price}</Text>
+                                   <View className={`mt-1 px-2 py-1 rounded-md ${statusColors.bg}`}>
+                                       <Text className={`text-xs font-bold uppercase ${statusColors.text}`}>
                                             {booking.status}
                                        </Text>
                                    </View>
@@ -145,7 +150,8 @@ const CustomerBookingsScreen = () => {
                                </TouchableOpacity>
                            )}
                        </View>
-                   ))}
+                   );
+                   })}
                </View>
            )}
        </ScrollView>
@@ -167,11 +173,9 @@ const CustomerBookingsScreen = () => {
                    <View className="flex-row justify-center gap-4 mb-6">
                        {[1, 2, 3, 4, 5].map((star) => (
                            <TouchableOpacity key={star} onPress={() => setRating(star)}>
-                               <Feather 
-                                    name="star" 
+                               <StarIcon 
                                     size={40} 
                                     color={star <= rating ? "#FACC15" : "#E5E7EB"} 
-                                    style={{ fill: star <= rating ? "#FACC15" : "none" }} // specialized styling for fill if supported or just color
                                /> 
                            </TouchableOpacity>
                        ))}

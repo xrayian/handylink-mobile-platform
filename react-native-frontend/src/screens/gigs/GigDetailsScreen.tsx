@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import { StarIcon } from 'react-native-heroicons/solid';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import api from '../../services/api';
 
@@ -83,7 +84,7 @@ const GigDetailsScreen = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <View className="px-4 py-2 flex-row items-center justify-between border-b border-gray-50">
+      <View className="px-4 py-2 flex-row items-center justify-between border-b border-gray-50 bg-white">
           <TouchableOpacity onPress={() => navigation.goBack()} className="p-2">
               <Feather name="arrow-left" size={24} color="black" />
           </TouchableOpacity>
@@ -103,7 +104,7 @@ const GigDetailsScreen = () => {
               <View className="flex-row items-center gap-6 mb-6">
                  {gig.avg_rating && (
                      <View className="flex-row items-center gap-1">
-                         <Feather name="star" size={16} color="black" />
+                         <StarIcon size={16} color="black" />
                          <Text className="font-bold text-base">{parseFloat(gig.avg_rating).toFixed(1)}</Text>
                          <Text className="text-gray-500 text-sm">({gig.review_count || 0} reviews)</Text>
                      </View>
@@ -115,20 +116,6 @@ const GigDetailsScreen = () => {
               </View>
 
               <View className="h-[1px] bg-gray-100 mb-6" />
-              
-              {/* Price & Booking (Mobile Layout often puts this sticky at bottom, but inline is fine too) */}
-              <View className="bg-gray-50 p-6 rounded-3xl mb-8 border border-gray-100">
-                  <View className="flex-row justify-between items-end mb-6">
-                      <Text className="text-gray-500 font-bold">Price</Text>
-                      <Text className="text-3xl font-bold text-gray-900">৳{parseFloat(gig.price).toFixed(0)}</Text>
-                  </View>
-                  <TouchableOpacity 
-                    onPress={() => setShowBookingModal(true)}
-                    className="w-full bg-black py-4 rounded-2xl items-center shadow-lg"
-                  >
-                      <Text className="text-white font-bold text-lg">Book Now</Text>
-                  </TouchableOpacity>
-              </View>
 
               {/* Description */}
               <View className="mb-8">
@@ -169,7 +156,7 @@ const GigDetailsScreen = () => {
                                </View>
                                <View className="flex-row mb-2">
                                    {[1,2,3,4,5].map(i => (
-                                       <Feather key={i} name="star" size={12} color={i <= review.rating ? "#FACC15" : "#E5E7EB"} />
+                                       <StarIcon key={i} size={12} color={i <= review.rating ? "#FACC15" : "#E5E7EB"} />
                                    ))}
                                </View>
                                <Text className="text-gray-600 text-sm leading-relaxed">"{review.comment}"</Text>
@@ -180,6 +167,20 @@ const GigDetailsScreen = () => {
 
           </View>
       </ScrollView>
+
+      {/* Sticky Bottom Footer */}
+      <View className="p-4 bg-white border-t border-gray-100 flex-row items-center justify-between pb-8 shadow-2xl">
+          <View>
+              <Text className="text-gray-500 font-bold text-xs uppercase">Total Price</Text>
+              <Text className="text-3xl font-bold text-gray-900">৳{parseFloat(gig.price).toFixed(0)}</Text>
+          </View>
+          <TouchableOpacity 
+            onPress={() => setShowBookingModal(true)}
+            className="bg-black py-4 px-8 rounded-2xl shadow-lg flex-1 ml-6 items-center"
+          >
+              <Text className="text-white font-bold text-lg">Book Now</Text>
+          </TouchableOpacity>
+      </View>
 
       {/* Booking Modal */}
       <Modal

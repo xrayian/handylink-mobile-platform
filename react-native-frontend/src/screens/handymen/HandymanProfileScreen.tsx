@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { ArrowLeftIcon, MapPinIcon } from 'react-native-heroicons/outline';
+import { StarIcon } from 'react-native-heroicons/solid';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import api from '../../services/api';
 
@@ -58,7 +59,7 @@ const HandymanProfileScreen = () => {
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
       <View className="px-4 py-2 flex-row items-center border-b border-gray-50">
           <TouchableOpacity onPress={() => navigation.goBack()} className="p-2">
-              <Feather name="arrow-left" size={24} color="black" />
+              <ArrowLeftIcon size={24} color="black" />
           </TouchableOpacity>
       </View>
 
@@ -114,7 +115,7 @@ const HandymanProfileScreen = () => {
                           <TouchableOpacity 
                             key={gig.id}
                             onPress={() => navigation.navigate('GigDetails', { id: gig.id })}
-                            className="bg-white border border-gray-100 p-5 rounded-2xl shadow-sm flex-row justify-between items-start"
+                            className="bg-white border border-gray-100 p-5 mb-2 rounded-2xl shadow-sm flex-row justify-between items-start"
                           >
                               <View className="flex-1 mr-4">
                                   <View className="bg-gray-50 self-start px-2 py-1 rounded-md mb-2">
@@ -122,7 +123,7 @@ const HandymanProfileScreen = () => {
                                   </View>
                                   <Text className="font-bold text-lg text-gray-900 mb-1">{gig.title}</Text>
                                   <View className="flex-row items-center gap-1">
-                                      <Feather name="map-pin" size={12} color="#9CA3AF" />
+                                      <MapPinIcon size={12} color="#9CA3AF" />
                                       <Text className="text-gray-400 text-xs">{gig.city || 'Unknown Location'}</Text>
                                   </View>
                               </View>
@@ -142,19 +143,19 @@ const HandymanProfileScreen = () => {
                    <Text className="text-gray-500 italic">No reviews yet.</Text>
                ) : (
                    reviews.map((review) => (
-                       <View key={review.id} className="mb-6 border-b border-gray-50 pb-6 last:border-0 last:pb-0">
+                       <View key={review.created_at} className="mb-6 border-b border-gray-50 pb-6 last:border-0 last:pb-0">
                            <View className="flex-row justify-between mb-2">
                                <View className="flex-row gap-2 items-center">
                                    <View className="w-8 h-8 rounded-full bg-gray-200 items-center justify-center">
-                                       <Text className="text-xs font-bold text-gray-600">{review.customer_name?.charAt(0)}</Text>
+                                       <Text className="text-xs font-bold text-gray-600">{review.reviewer_name?.charAt(0)}</Text>
                                    </View>
-                                   <Text className="font-bold text-gray-900 text-sm">{review.customer_name}</Text>
+                                   <Text className="font-bold text-gray-900 text-sm">{review.reviewer_name}</Text>
                                </View>
                                <Text className="text-xs text-gray-400">{new Date(review.created_at).toLocaleDateString()}</Text>
                            </View>
                            <View className="flex-row mb-2">
                                {[1,2,3,4,5].map(i => (
-                                   <Feather key={i} name="star" size={12} color={i <= review.rating ? "#FACC15" : "#E5E7EB"} />
+                                   <StarIcon key={i} size={12} color={i <= review.rating ? "#FACC15" : "#E5E7EB"} />
                                ))}
                            </View>
                            <Text className="text-gray-600 text-sm leading-relaxed">"{review.comment}"</Text>
