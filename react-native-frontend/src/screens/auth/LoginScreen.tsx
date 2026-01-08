@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useNavigation } from '@react-navigation/native';
 import api from '../../services/api';
@@ -12,6 +12,7 @@ const LoginScreen = () => {
   const setToken = useAuthStore((state) => state.setToken);
   const setUser = useAuthStore((state) => state.setUser);
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   const handleLogin = async () => {
     setLoading(true);
@@ -41,14 +42,16 @@ const LoginScreen = () => {
     <KeyboardAvoidingView 
         behavior={Platform.OS === "ios" ? "padding" : (Platform.OS === "android" ? "height" : undefined)} 
         className="flex-1 bg-white"
+        style={{ paddingBottom: insets.bottom }}
     >
+        <StatusBar barStyle="light-content" />
         <ScrollView 
             className="flex-1"
             contentContainerStyle={{ flexGrow: 1 }}
             keyboardShouldPersistTaps="handled"
         >
             {/* Top Section (Branding) - simplified Left Panel */}
-            <View className="bg-black pt-16 pb-12 px-8 rounded-b-[40px]">
+            <View className="bg-black pb-12 px-8 rounded-b-[40px]" style={{ paddingTop: insets.top + 20 }}>
                 <Text className="text-white text-3xl font-bold tracking-tighter mb-6">HandyLink.</Text>
                 <View>
                     <Text className="text-white text-4xl font-bold leading-tight mb-2">Get things done.</Text>

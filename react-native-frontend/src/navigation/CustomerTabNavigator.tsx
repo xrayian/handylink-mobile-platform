@@ -9,15 +9,16 @@ const Tab = createBottomTabNavigator();
 
 const CustomerTabNavigator = () => {
     return (
+        /* @ts-ignore */
         <Tab.Navigator
             screenOptions={{
                 headerShown: false,
-                tabBaseStyle: {
-                    borderTopWidth: 0,
-                    elevation: 0,
-                    height: 60,
-                    paddingBottom: 10,
-                },
+                // tabBaseStyle: {
+                //     borderTopWidth: 0,
+                //     elevation: 0,
+                //     height: 60,
+                //     paddingBottom: 10,
+                // },
                 tabBarActiveTintColor: '#000',
                 tabBarInactiveTintColor: '#9CA3AF',
             }}
@@ -37,7 +38,7 @@ const CustomerTabNavigator = () => {
                 component={CustomerBookingsScreen} 
                 options={{
                     tabBarIcon: ({ color, size }) => (
-                        <Feather name="calendar" size={size} color={color} />
+                        <Feather name="clipboard" size={size} color={color} />
                     ),
                     tabBarLabel: 'Bookings'
                 }}

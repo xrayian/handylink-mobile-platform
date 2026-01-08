@@ -56,7 +56,7 @@ const HandymanProfileScreen = () => {
     if (!profile) return null;
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
       <View className="px-4 py-2 flex-row items-center border-b border-gray-50">
           <TouchableOpacity onPress={() => navigation.goBack()} className="p-2">
               <ArrowLeftIcon size={24} color="black" />

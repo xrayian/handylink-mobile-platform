@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator, Alert, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { StarIcon } from 'react-native-heroicons/solid';
 import { useAuthStore } from '../../stores/useAuthStore';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import api from '../../services/api';
 
 const HandymanDashboardScreen = () => {
@@ -12,52 +12,59 @@ const HandymanDashboardScreen = () => {
   const navigation = useNavigation();
 
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [profile, setProfile] = useState(null);
   const [stats, setStats] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [myGigs, setMyGigs] = useState([]);
-  const [activeTab, setActiveTab] = useState('bookings'); // 'bookings' or 'gigs'
+  const [activeTab, setActiveTab] = useState('gigs');
 
-  const fetchDashboardData = async () => {
+  const toggleActiveTab = (tab: string) => {
+      setActiveTab(tab);
+  }
+
+  const fetchDashboardData = async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       
-      // Fetch Profile for verification status
       const profileRes = await api.get('/handyman/profile');
       setProfile(profileRes.data);
 
       if (profileRes.data.is_verified === 'approved') {
-          // Fetch Stats
           const statsRes = await api.get('/handyman/stats');
           setStats(statsRes.data);
 
-          // Fetch Bookings
           const bookingsRes = await api.get('/handyman/bookings');
-          setBookings(bookingsRes.data);
+          const sortedBookings = bookingsRes.data.sort((a: any, b: any) => 
+            new Date(b.booking_time).getTime() - new Date(a.booking_time).getTime()
+          );
+          setBookings(sortedBookings);
 
-          // Fetch Gigs
           const gigsRes = await api.get('/handyman/gigs');
           setMyGigs(gigsRes.data);
       }
 
     } catch (error) {
       console.log('Error fetching handyman dashboard:', error);
-      // @ts-ignore
       Alert.alert('Error', 'Failed to load dashboard data');
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchDashboardData();
-    }, [])
-  );
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchDashboardData(false);
+    setRefreshing(false);
+  }, []);
 
   const updateBookingStatus = async (bookingId, status) => {
       try {
-          await api.post(`/bookings/${bookingId}/status`, { status });
+          await api.patch(`/bookings/${bookingId}`, { status });
           fetchDashboardData();
           Alert.alert("Success", `Booking ${status}`);
       } catch (error) {
@@ -94,34 +101,72 @@ const HandymanDashboardScreen = () => {
 
   // Unverified State
   if (!profile || profile.is_verified !== 'approved') {
+      const isPending = profile?.is_verified === 'pending';
+      const isRejected = profile?.is_verified === 'rejected';
+
       return (
-          <SafeAreaView className="flex-1 bg-white px-6 justify-center items-center">
-              <View className="bg-yellow-50 p-6 rounded-2xl items-center mb-6">
-                  <Feather name="shield" size={48} color="#D97706" />
-                  <Text className="text-xl font-bold text-gray-900 mt-4 text-center">Verification Required</Text>
-                  <Text className="text-gray-600 text-center mt-2">
-                       {profile?.is_verified === 'pending' 
-                        ? "Your profile is currently under review. Please wait for admin approval." 
-                        : "Please complete your profile verification to start accepting jobs."}
+          <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+              <View className="flex-1 px-6 justify-center items-center">
+                  <View className={`h-32 w-32 rounded-full items-center justify-center mb-8 ${isRejected ? 'bg-red-50' : isPending ? 'bg-orange-50' : 'bg-blue-50' }`}>
+                      <Feather 
+                        name={isRejected ? "alert-circle" : isPending ? "clock" : "shield"} 
+                        size={48} 
+                        color={isRejected ? "#DC2626" : isPending ? "#EA580C" : "#2563EB"} 
+                      />
+                  </View>
+
+                  <Text className="text-3xl font-bold text-gray-900 text-center mb-3">
+                      {isRejected ? "Application Update" : isPending ? "Under Review" : "Verification Required"}
                   </Text>
-              </View>
-              {profile?.is_verified !== 'pending' && (
+                  
+                  <Text className="text-gray-500 text-center text-lg leading-relaxed mb-12 px-2">
+                      {isRejected 
+                          ? "We couldn't approve your profile based on the details provided. Please review our guidelines and try again."
+                          : isPending 
+                              ? "Thanks for applying! Your profile is currently being reviewed by our team. This usually takes 24-48 hours."
+                              : "To start accepting jobs and earning money, we need to verify your skills and identity. It only takes 2 minutes."}
+                  </Text>
+    
+                  {isPending ? (
+                      <View className="w-full bg-gray-50 p-5 rounded-2xl flex-row items-center justify-center border border-gray-100">
+                          <ActivityIndicator color="#6B7280" className="mr-3" />
+                          <Text className="font-semibold text-gray-500">Checking status...</Text>
+                      </View>
+                  ) : (
+                      <TouchableOpacity 
+                        className={`w-full py-5 rounded-2xl shadow-xl shadow-gray-200 flex-row justify-center items-center ${isRejected ? 'bg-red-600' : 'bg-black'}`}
+                        onPress={() => navigation.navigate('HandymanVerification')} 
+                        activeOpacity={0.9}
+                      >
+                          <Text className="text-white text-center font-bold text-lg mr-2">
+                              {isRejected ? "Update Profile" : "Start Verification"}
+                          </Text>
+                          <Feather name="arrow-right" size={20} color="white" />
+                      </TouchableOpacity>
+                  )}
+
                   <TouchableOpacity 
-                    className="bg-black py-4 px-8 rounded-xl w-full"
-                    // onPress={() => navigation.navigate('VerificationForm')} // TODO: Implement Verification Form
+                    className="mt-8 py-3" 
+                    onPress={() => useAuthStore.getState().logout()}
                   >
-                      <Text className="text-white text-center font-bold">Complete Verification</Text>
+                        <Text className="text-gray-400 font-bold text-sm">Sign Out</Text>
                   </TouchableOpacity>
-              )}
+              </View>
           </SafeAreaView>
       );
   }
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
-      <ScrollView className="flex-1 px-4 pt-4 pb-24" showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        className="flex-1 px-4 pt-4" 
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        // 0: Header, 1: Stats, 2: Rating, 3: Tabs (This index makes tabs sticky)
+        stickyHeaderIndices={[3]} 
+      >
         
-        {/* Header */}
+        {/* Header (Index 0) */}
         <View className="flex-row items-end justify-between mb-8 pb-6 border-b border-gray-100">
             <View>
                 <Text className="text-3xl font-bold text-gray-900 tracking-tight">Dashboard</Text>
@@ -136,9 +181,8 @@ const HandymanDashboardScreen = () => {
             </TouchableOpacity>
         </View>
 
-        {/* Stats Overview */}
+        {/* Stats Overview (Index 1) */}
         <View className="flex-row gap-4 mb-8">
-             {/* Earnings */}
              <View className="flex-1 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
                  <View className="absolute right-0 top-0 p-2 opacity-10 bg-green-500 rounded-bl-3xl">
                      <Feather name="dollar-sign" size={40} color="black" />
@@ -147,7 +191,6 @@ const HandymanDashboardScreen = () => {
                  <Text className="text-2xl font-bold text-gray-900">৳{stats?.total_earnings?.toLocaleString() || '0'}</Text>
              </View>
 
-             {/* Jobs */}
              <View className="flex-1 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
                  <View className="absolute right-0 top-0 p-2 opacity-10 bg-blue-500 rounded-bl-3xl">
                      <Feather name="briefcase" size={40} color="black" />
@@ -164,7 +207,7 @@ const HandymanDashboardScreen = () => {
              </View>
         </View>
 
-        {/* Rating Card (Full Width) */}
+        {/* Rating Card (Index 2) */}
         <View className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden mb-8">
              <View className="absolute right-0 top-0 p-3 opacity-10 bg-yellow-400 rounded-bl-3xl">
                  <StarIcon size={50} color="black" />
@@ -180,25 +223,28 @@ const HandymanDashboardScreen = () => {
              </View>
         </View>
 
-        {/* Tabs */}
-        <View className="flex-row bg-gray-200 p-1 rounded-full mb-6 self-start">
-            <TouchableOpacity 
-                onPress={() => setActiveTab('bookings')}
-                className={`px-6 py-2 rounded-full ${activeTab === 'bookings' ? 'bg-white shadow-sm' : ''}`}
-            >
-                <Text className={`text-sm font-bold ${activeTab === 'bookings' ? 'text-black' : 'text-gray-500'}`}>Bookings</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-                onPress={() => setActiveTab('gigs')}
-                className={`px-6 py-2 rounded-full ${activeTab === 'gigs' ? 'bg-white shadow-sm' : ''}`}
-            >
-                <Text className={`text-sm font-bold ${activeTab === 'gigs' ? 'text-black' : 'text-gray-500'}`}>My Services</Text>
-            </TouchableOpacity>
+        {/* Tabs (Index 3) - FIXED */}
+        <View className="pb-6 bg-gray-50"> 
+          {/* Added pb-6 and bg-gray-50 so when it sticks, it looks clean */}
+            <View className="flex-row bg-gray-200 p-1 rounded-xl">
+                <TouchableOpacity 
+                    onPress={() => toggleActiveTab('bookings')}
+                    className={`flex-1 py-3 rounded-lg items-center justify-center ${activeTab === 'bookings' ? 'bg-white shadow-sm' : ''}`}
+                >
+                    <Text className={`text-sm font-bold ${activeTab === 'bookings' ? 'text-black' : 'text-gray-500'}`}>Bookings</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    onPress={() => toggleActiveTab('gigs')}
+                    className={`flex-1 py-3 rounded-lg items-center justify-center ${activeTab === 'gigs' ? 'bg-white shadow-sm' : ''}`}
+                >
+                    <Text className={`text-sm font-bold ${activeTab === 'gigs' ? 'text-black' : 'text-gray-500'}`}>My Services</Text>
+                </TouchableOpacity>
+            </View>
         </View>
 
         {/* Tab Content */}
         {activeTab === 'bookings' ? (
-            <View className="space-y-4">
+            <View className="space-y-4 pb-24">
                 {bookings.length === 0 ? (
                     <View className="bg-white rounded-2xl p-10 items-center justify-center border border-gray-100">
                          <View className="w-16 h-16 bg-gray-50 rounded-full items-center justify-center mb-4">
@@ -208,19 +254,19 @@ const HandymanDashboardScreen = () => {
                     </View>
                 ) : (
                     bookings.map(booking => (
-                        <View key={booking.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                            <View className="flex-row justify-between mb-4">
-                                <View className="flex-row items-center gap-3">
-                                    <View className="w-12 h-12 bg-blue-50 rounded-xl items-center justify-center border border-blue-100">
+                        <View key={booking.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm mb-2">
+                            <View className="flex-row justify-between items-start mb-4">
+                                <View className="flex-row gap-3 flex-1 mr-3">
+                                    <View className="w-12 h-12 bg-blue-50 rounded-xl items-center justify-center border border-blue-100 shrink-0">
                                         <Text className="text-blue-700 font-bold text-xs uppercase">{new Date(booking.booking_time).toLocaleString('default', { month: 'short' })}</Text>
                                         <Text className="text-blue-900 font-bold text-lg">{new Date(booking.booking_time).getDate()}</Text>
                                     </View>
-                                    <View>
-                                        <Text className="font-bold text-gray-900 text-lg">{booking.gig_title}</Text>
+                                    <View className="flex-1 pt-0.5">
+                                        <Text className="font-bold text-gray-900 text-lg leading-6" numberOfLines={2}>{booking.gig_title}</Text>
                                         <Text className="text-gray-500 text-xs font-bold uppercase tracking-wider">{booking.status}</Text>
                                     </View>
                                 </View>
-                                <Text className="font-bold text-gray-900 text-lg">৳{booking.total_price}</Text>
+                                <Text className="font-bold text-gray-900 text-lg shrink-0 pt-0.5">৳{booking.total_price}</Text>
                             </View>
 
                             <View className="flex-row items-center gap-2 mb-4">
@@ -270,7 +316,7 @@ const HandymanDashboardScreen = () => {
                 )}
             </View>
         ) : (
-             <View className="space-y-4">
+             <View className="space-y-4 pb-24">
                  {myGigs.length === 0 ? (
                       <View className="bg-white rounded-2xl p-10 items-center justify-center border border-gray-100">
                          <View className="w-16 h-16 bg-gray-50 rounded-full items-center justify-center mb-4">
@@ -279,31 +325,31 @@ const HandymanDashboardScreen = () => {
                          <Text className="text-gray-500 font-medium">No services created yet</Text>
                     </View>
                  ) : (
-                     myGigs.map(gig => (
-                         <View key={gig.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                             <View className="flex-row justify-between items-start mb-2">
-                                 <View className="bg-blue-50 px-2 py-1 rounded-md">
-                                     <Text className="text-blue-700 text-[10px] font-bold uppercase">{gig.category_name}</Text>
-                                 </View>
-                                 <View className={`w-2 h-2 rounded-full ${gig.is_active ? 'bg-green-500' : 'bg-gray-300'}`} />
-                             </View>
-                             
-                             <Text className="text-lg font-bold text-gray-900 mb-1">{gig.title}</Text>
-                             <Text className="text-gray-500 text-sm mb-4" numberOfLines={2}>{gig.description}</Text>
-                             
-                             <View className="flex-row items-center justify-between border-t border-gray-50 pt-3">
-                                 <Text className="text-xl font-bold text-gray-900">৳{gig.price}</Text>
-                                 <View className="flex-row gap-4">
-                                     <TouchableOpacity onPress={() => navigation.navigate('CreateGig', { gig })}>
-                                         <Feather name="edit-2" size={18} color="#9CA3AF" />
-                                     </TouchableOpacity>
-                                     <TouchableOpacity onPress={() => deleteGig(gig.id)}>
-                                         <Feather name="trash-2" size={18} color="#EF4444" />
-                                     </TouchableOpacity>
-                                 </View>
-                             </View>
-                         </View>
-                     ))
+                      myGigs.map(gig => (
+                          <View key={gig.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                              <View className="flex-row justify-between items-start mb-2">
+                                  <View className="bg-blue-50 px-2 py-1 rounded-md">
+                                      <Text className="text-blue-700 text-[10px] font-bold uppercase">{gig.category_name}</Text>
+                                  </View>
+                                  <View className={`w-2 h-2 rounded-full ${gig.is_active ? 'bg-green-500' : 'bg-gray-300'}`} />
+                              </View>
+                              
+                              <Text className="text-lg font-bold text-gray-900 mb-1">{gig.title}</Text>
+                              <Text className="text-gray-500 text-sm mb-4" numberOfLines={2}>{gig.description}</Text>
+                              
+                              <View className="flex-row items-center justify-between border-t border-gray-50 pt-3">
+                                  <Text className="text-xl font-bold text-gray-900">৳{gig.price}</Text>
+                                  <View className="flex-row gap-4">
+                                      <TouchableOpacity onPress={() => navigation.navigate('CreateGig', { gig })}>
+                                          <Feather name="edit-2" size={18} color="#9CA3AF" />
+                                      </TouchableOpacity>
+                                      <TouchableOpacity onPress={() => deleteGig(gig.id)}>
+                                          <Feather name="trash-2" size={18} color="#EF4444" />
+                                      </TouchableOpacity>
+                                  </View>
+                              </View>
+                          </View>
+                      ))
                  )}
             </View>
         )}
@@ -314,4 +360,3 @@ const HandymanDashboardScreen = () => {
 };
 
 export default HandymanDashboardScreen;
-

@@ -3,7 +3,6 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Lin
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { useAuthStore } from '../../stores/useAuthStore';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import api from '../../services/api';
 
 const AdminDashboardScreen = () => {
@@ -44,15 +43,13 @@ const AdminDashboardScreen = () => {
     }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchAdminData();
-    }, [])
-  );
+  useEffect(() => {
+    fetchAdminData();
+  }, []);
 
-  const handleVerification = async (userId, status) => {
+  const handleVerification = async (handymanId, status) => {
       try {
-          await api.post('/admin/verify-user', { user_id: userId, status });
+          await api.post('/admin/approve', { handyman_id: handymanId, action: status });
           Alert.alert("Success", `User ${status} successfully`);
           fetchAdminData();
       } catch (error) {
@@ -70,7 +67,7 @@ const AdminDashboardScreen = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-gray-50" edges={['top','bottom']}>
       <ScrollView className="flex-1 px-4 pt-4 pb-20" showsVerticalScrollIndicator={false}>
         
         {/* Header */}
@@ -159,13 +156,13 @@ const AdminDashboardScreen = () => {
                                     )}
                                     <View className="flex-1 flex-row gap-2 justify-end">
                                         <TouchableOpacity 
-                                            onPress={() => handleVerification(v.user_id, 'rejected')}
+                                            onPress={() => handleVerification(v.id, 'reject')}
                                             className="bg-red-50 px-4 py-2 rounded-lg border border-red-100"
                                         >
                                             <Text className="text-red-600 font-bold text-xs">Reject</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity 
-                                            onPress={() => handleVerification(v.user_id, 'approved')}
+                                            onPress={() => handleVerification(v.id, 'approve')}
                                             className="bg-green-50 px-4 py-2 rounded-lg border border-green-100"
                                         >
                                             <Text className="text-green-600 font-bold text-xs">Approve</Text>

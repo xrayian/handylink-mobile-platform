@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View } from 'react-native';
 import AuthStack from './AuthStack';
 import AppStack from './AppStack';
+import './types'; // Import types for global declaration
 import { useAuthStore } from '../stores/useAuthStore';
 import '../../global.css';
 
@@ -18,6 +19,7 @@ const RootNavigator = () => {
 
     return (
         <NavigationContainer>
+            {/* @ts-ignore */}
             <Stack.Navigator screenOptions={{ headerShown: false }}>
                 {token ? (
                     <Stack.Screen name="App" component={AppStack} />

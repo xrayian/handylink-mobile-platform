@@ -9,7 +9,9 @@ const CreateGigScreen = () => {
   const navigation = useNavigation();
   // @ts-ignore
   const { params } = useRoute();
+  // @ts-ignore
   const isEditing = !!params?.gig; 
+  // @ts-ignore
   const initialData = params?.gig || {};
 
   const [form, setForm] = useState({
@@ -128,7 +130,7 @@ const CreateGigScreen = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
       <View className="px-4 py-4 border-b border-gray-100 flex-row items-center justify-between">
           <TouchableOpacity onPress={() => navigation.goBack()}>
              <Feather name="arrow-left" size={24} color="black" />
@@ -141,7 +143,7 @@ const CreateGigScreen = () => {
          
          <View className="space-y-6">
              {/* Title */}
-             <View>
+             <View className='mb-4'>
                  <Text className="text-gray-500 font-bold uppercase text-xs tracking-wider mb-2">Gig Title</Text>
                  <TextInput 
                     className="w-full bg-gray-50 border border-gray-200 p-4 rounded-xl text-lg font-bold"
@@ -152,7 +154,7 @@ const CreateGigScreen = () => {
              </View>
 
              {/* Category */}
-             <View>
+             <View className='mb-4'>
                  <View className="flex-row justify-between items-center mb-2">
                      <Text className="text-gray-500 font-bold uppercase text-xs tracking-wider">Category</Text>
                      <TouchableOpacity onPress={() => setShowAddCategory(!showAddCategory)}>
@@ -174,7 +176,7 @@ const CreateGigScreen = () => {
                      </View>
                  )}
 
-                 <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
+                 <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row mb-4">
                      {categories.map((cat) => (
                          <TouchableOpacity
                              key={cat.id}
@@ -194,7 +196,7 @@ const CreateGigScreen = () => {
              </View>
 
              {/* Price */}
-             <View>
+             <View className='mb-4'>
                  <Text className="text-gray-500 font-bold uppercase text-xs tracking-wider mb-2">Base Price (৳)</Text>
                  <TextInput 
                     className="w-full bg-gray-50 border border-gray-200 p-4 rounded-xl text-lg font-bold"
@@ -206,7 +208,7 @@ const CreateGigScreen = () => {
              </View>
 
              {/* Location Search */}
-             <View className="relative z-10">
+             <View className="relative z-10 mb-4">
                  <Text className="text-gray-500 font-bold uppercase text-xs tracking-wider mb-2">Service Location</Text>
                  <TextInput 
                     className="w-full bg-gray-50 border border-gray-200 p-4 rounded-xl text-base font-medium"
@@ -244,7 +246,7 @@ const CreateGigScreen = () => {
              </View>
 
              {/* Description */}
-             <View>
+             <View className='mb-4'>
                  <Text className="text-gray-500 font-bold uppercase text-xs tracking-wider mb-2">Description</Text>
                  <TextInput 
                     className="w-full bg-gray-50 border border-gray-200 p-4 rounded-xl text-base h-32"

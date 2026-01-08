@@ -27,7 +27,11 @@ const CustomerBookingsScreen = () => {
     try {
       setLoading(true);
       const response = await api.get('/my-bookings');
-      setBookings(response.data);
+      // Sort by latest (newest) booking time first
+      const sortedBookings = response.data.sort((a: any, b: any) => 
+        new Date(b.booking_time).getTime() - new Date(a.booking_time).getTime()
+      );
+      setBookings(sortedBookings);
     } catch (error) {
       console.error(error);
       // @ts-ignore
@@ -98,7 +102,7 @@ const CustomerBookingsScreen = () => {
                    <Text className="text-xl font-bold text-gray-900 mb-2">No bookings yet</Text>
                    <Text className="text-gray-500 mb-8 text-center px-10">When you book a service, it will show up here.</Text>
                    <TouchableOpacity 
-                        onPress={() => navigation.navigate('Dashboard')}
+                        onPress={() => navigation.navigate('CustomerTabs')}
                         className="bg-black px-8 py-3 rounded-xl"
                     >
                        <Text className="text-white font-medium">Find Services</Text>

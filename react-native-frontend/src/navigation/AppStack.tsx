@@ -6,11 +6,12 @@ import { useAuthStore } from '../stores/useAuthStore';
 import HomeScreen from '../screens/HomeScreen';
 import AboutScreen from '../screens/AboutScreen';
 import SettingsScreen from '../screens/SettingsScreen';
-import AdminDashboardScreen from '../screens/dashboard/AdminDashboardScreen';
-import HandymanDashboardScreen from '../screens/dashboard/HandymanDashboardScreen';
+import AdminTabNavigator from './AdminTabNavigator';
+import HandymanTabNavigator from './HandymanTabNavigator';
 import GigDetailsScreen from '../screens/gigs/GigDetailsScreen';
 import CreateGigScreen from '../screens/gigs/CreateGigScreen';
 import HandymanProfileScreen from '../screens/handymen/HandymanProfileScreen';
+import HandymanVerificationScreen from '../screens/handymen/HandymanVerificationScreen';
 import CustomerTabNavigator from './CustomerTabNavigator';
 
 const Stack = createNativeStackNavigator();
@@ -27,11 +28,18 @@ const AppStack = () => {
   };
 
   return (
+    /* @ts-ignore */
     <Stack.Navigator initialRouteName={getInitialRouteName()} screenOptions={{ headerShown: true }}>
        {/* Common Screens */}
       <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="About" component={AboutScreen} />
-      <Stack.Screen name="Settings" component={SettingsScreen} />
+      <Stack.Screen name="About" component={AboutScreen} options={{
+        headerShown: false
+      }} />
+      <Stack.Screen 
+        name="Settings" 
+        component={SettingsScreen} 
+        options={{ headerShown: false }}
+      />
       <Stack.Screen 
         name="GigDetails" 
         component={GigDetailsScreen} 
@@ -42,16 +50,21 @@ const AppStack = () => {
         component={HandymanProfileScreen} 
         options={{ headerShown: false }}
       />
+      <Stack.Screen 
+        name="HandymanVerification" 
+        component={HandymanVerificationScreen} 
+        options={{ headerShown: false }}
+      />
       
       {/* Role Specific Screens */}
       <Stack.Screen 
         name="AdminDashboard" 
-        component={AdminDashboardScreen} 
+        component={AdminTabNavigator} 
         options={{ headerShown: false }}
       />
       <Stack.Screen 
         name="HandymanDashboard" 
-        component={HandymanDashboardScreen} 
+        component={HandymanTabNavigator} 
         options={{ headerShown: false }}
       />
       
