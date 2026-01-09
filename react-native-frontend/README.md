@@ -1,4 +1,4 @@
-# My Universal React Project
+# HandyLink
 
 <p>
   <!-- iOS -->

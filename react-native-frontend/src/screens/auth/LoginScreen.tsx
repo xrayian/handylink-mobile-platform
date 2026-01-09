@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform, StatusBar, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useNavigation } from '@react-navigation/native';
 import api from '../../services/api';
@@ -9,6 +10,7 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const setToken = useAuthStore((state) => state.setToken);
   const setUser = useAuthStore((state) => state.setUser);
   const navigation = useNavigation();
@@ -44,32 +46,30 @@ const LoginScreen = () => {
         className="flex-1 bg-white"
         style={{ paddingBottom: insets.bottom }}
     >
-        <StatusBar barStyle="light-content" />
+        <StatusBar barStyle="dark-content" />
         <ScrollView 
-            className="flex-1"
-            contentContainerStyle={{ flexGrow: 1 }}
+            className="flex-1 px-6"
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
             keyboardShouldPersistTaps="handled"
         >
-            {/* Top Section (Branding) - simplified Left Panel */}
-            <View className="bg-black pb-12 px-8 rounded-b-[40px]" style={{ paddingTop: insets.top + 20 }}>
-                <Text className="text-white text-3xl font-bold tracking-tighter mb-6">HandyLink.</Text>
-                <View>
-                    <Text className="text-white text-4xl font-bold leading-tight mb-2">Get things done.</Text>
-                    <Text className="text-gray-400 text-lg">Connect with thousands of skilled professionals.</Text>
-                </View>
+            {/* Header Section */}
+            <View className="mb-10">
+                <Text className="text-4xl font-bold text-gray-900 mb-2">Let's Sign you in.</Text>
+                <Text className="text-2xl text-gray-500 font-medium">Welcome back.</Text>
+                <Text className="text-2xl text-gray-500 font-medium">You've been missed!</Text>
             </View>
 
             {/* Form Section */}
-            <View className="flex-1 px-8 pt-10 pb-8">
-                <Text className="text-2xl font-bold text-gray-900 mb-2">Welcome back</Text>
-                <Text className="text-gray-500 mb-8">Please enter your details to sign in.</Text>
-
-                <View className="space-y-4">
-                    <View>
-                        <Text className="text-gray-700 font-medium mb-2">Email</Text>
+            <View className="space-y-6">
+                
+                {/* Email Input */}
+                <View className="space-y-2">
+                    <Text className="text-gray-900 font-bold ml-1">Email</Text>
+                    <View className={`flex-row items-center border border-gray-200 rounded-2xl px-4 py-3 bg-gray-50 focus:border-black focus:bg-white transition-colors`}>
+                        <Feather name="mail" size={20} color="#9CA3AF" />
                         <TextInput 
-                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900"
-                            placeholder="Enter your email"
+                            className="flex-1 ml-3 text-base text-gray-900 font-medium"
+                            placeholder="name@example.com"
                             placeholderTextColor="#9CA3AF"
                             value={email}
                             onChangeText={setEmail}
@@ -77,46 +77,50 @@ const LoginScreen = () => {
                             keyboardType="email-address"
                         />
                     </View>
+                </View>
 
-                    <View>
-                        <Text className="text-gray-700 font-medium mb-2">Password</Text>
+                {/* Password Input */}
+                <View className="space-y-2">
+                    <Text className="text-gray-900 font-bold ml-1">Password</Text>
+                    <View className="flex-row items-center border border-gray-200 rounded-2xl px-4 py-3 bg-gray-50">
+                        <Feather name="lock" size={20} color="#9CA3AF" />
                         <TextInput 
-                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900"
+                            className="flex-1 ml-3 text-base text-gray-900 font-medium"
                             placeholder="••••••••"
                             placeholderTextColor="#9CA3AF"
                             value={password}
                             onChangeText={setPassword}
-                            secureTextEntry
+                            secureTextEntry={!showPassword}
                         />
+                        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                            <Feather name={showPassword ? "eye" : "eye-off"} size={20} color="#9CA3AF" />
+                        </TouchableOpacity>
                     </View>
-
-                    {/* <TouchableOpacity className="items-end">
-                        <Text className="text-sm font-medium text-gray-900">Forgot password?</Text>
-                    </TouchableOpacity> */}
-
-                    <TouchableOpacity 
-                        className="w-full bg-black rounded-xl py-4 items-center mt-4"
-                        onPress={handleLogin}
-                        disabled={loading}
-                    >
-                        <Text className="text-white font-bold text-lg">
-                            {loading ? "Signing in..." : "Sign in"}
-                        </Text>
-                    </TouchableOpacity>
-
-                    {/* <TouchableOpacity 
-                        className="w-full bg-white border border-gray-200 rounded-xl py-4 items-center flex-row justify-center gap-3 mt-2"
-                        onPress={() => {}}
-                    >
-                         {/* Google Icon placeholder 
-                        <Text className="text-gray-700 font-medium text-lg">Sign in with Google</Text>
-                    </TouchableOpacity> */}
                 </View>
 
-                <View className="flex-row justify-center mt-auto pt-8">
-                    <Text className="text-gray-500">Don't have an account? </Text>
+                {/* Forgot Password? */}
+                {/* <TouchableOpacity className="items-end">
+                    <Text className="font-bold text-gray-900">Forgot Password?</Text>
+                </TouchableOpacity> */}
+
+                {/* Login Button */}
+                <TouchableOpacity 
+                    className="w-full bg-black rounded-2xl py-4 items-center shadow-lg shadow-gray-300 mt-4 active:scale-95 transition-transform"
+                    onPress={handleLogin}
+                    disabled={loading}
+                >
+                     {loading ? (
+                        <ActivityIndicator color="white" />
+                    ) : (
+                        <Text className="text-white font-bold text-lg">Sign In</Text>
+                    )}
+                </TouchableOpacity>
+
+                {/* Register Link */}
+                <View className="flex-row justify-center mt-6">
+                    <Text className="text-gray-500 font-medium">Don't have an account? </Text>
                     <TouchableOpacity onPress={() => navigation.navigate('RegisterChoice')}>
-                        <Text className="text-black font-bold">Sign up</Text>
+                        <Text className="text-black font-bold">Register</Text>
                     </TouchableOpacity>
                 </View>
             </View>

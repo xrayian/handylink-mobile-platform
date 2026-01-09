@@ -25,7 +25,7 @@ const Tab = createBottomTabNavigator();
 const AdminTabNavigator = () => {
   return (
     // <SafeAreaView className="flex-1 bg-white" edges={["bottom"]}>
-    // {/* @ts-ignore */}
+    //@ts-ignore
       <Tab.Navigator
         screenOptions={{
                 headerShown: false,

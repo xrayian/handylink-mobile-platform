@@ -1,6 +1,6 @@
 {
-  "name": "react-native-frontend",
-  "slug": "react-native-frontend",
+  "name": "HandyLink",
+  "slug": "handylink",
   "userInterfaceStyle": "automatic",
   "version": "1.0.0",
   "orientation": "portrait",
@@ -24,7 +24,8 @@
     "adaptiveIcon": {
       "foregroundImage": "./assets/adaptive-icon.png",
       "backgroundColor": "#FFFFFF"
-    }
+    },
+    "package": "com.anonymous.handylink"
   },
   "web": {
     "favicon": "./assets/favicon.png"
