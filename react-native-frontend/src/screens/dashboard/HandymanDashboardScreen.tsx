@@ -12,9 +12,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { StarIcon } from "react-native-heroicons/solid";
 import { useAuthStore } from "../../stores/useAuthStore";
+import { useNavigation } from "@react-navigation/native";
+import { CommonActions } from "@react-navigation/native";
+import type { NavigationProp } from "@react-navigation/native";
 import api from "../../services/api";
 
-const HandymanDashboardScreen = ({ navigation }: { navigation: any }) => {
+const HandymanDashboardScreen = () => {
+  const navigation = useNavigation<NavigationProp<any>>();
   const user = useAuthStore((state) => state.user);
 
   type Tabs = "bookings" | "gigs";
@@ -27,8 +31,8 @@ const HandymanDashboardScreen = ({ navigation }: { navigation: any }) => {
   const [myGigs, setMyGigs] = useState([]);
   const [activeTab, setActiveTab] = useState<Tabs>("bookings");
 
-  const toggleActiveTab = () => {
-    setActiveTab((prev) => (prev === "bookings" ? "gigs" : "bookings"));
+  const toggleActiveTab = async () => {
+    setActiveTab((prevTab) => (prevTab === "bookings" ? "gigs" : "bookings"));
   };
 
   const fetchDashboardData = async (showLoading = true) => {
@@ -159,10 +163,12 @@ const HandymanDashboardScreen = ({ navigation }: { navigation: any }) => {
             </View>
           ) : (
             <TouchableOpacity
-              className={`w-full py-5 rounded-2xl shadow-xl shadow-gray-200 flex-row justify-center items-center ${
+              className={`w-full py-5 rounded-2xl flex-row justify-center items-center ${
                 isRejected ? "bg-red-600" : "bg-black"
               }`}
-              onPress={() => navigation.navigate("HandymanVerification")}
+              onPress={() =>
+                navigation.getParent()?.navigate("HandymanVerification")
+              }
               activeOpacity={0.9}
             >
               <Text className="text-white text-center font-bold text-lg mr-2">
@@ -205,8 +211,8 @@ const HandymanDashboardScreen = ({ navigation }: { navigation: any }) => {
             </Text>
           </View>
           <TouchableOpacity
-            onPress={() => navigation.navigate("CreateGig")}
-            className="bg-black px-5 py-3 rounded-full flex-row items-center shadow-lg shadow-black/20"
+            onPress={() => navigation.getParent()?.navigate("CreateGig")}
+            className="bg-black px-5 py-3 rounded-full flex-row items-center"
           >
             <Feather name="plus" size={18} color="white" />
             <Text className="text-white font-bold ml-2 text-xs">New Gig</Text>
@@ -215,7 +221,7 @@ const HandymanDashboardScreen = ({ navigation }: { navigation: any }) => {
 
         {/* Stats Overview (Index 1) */}
         <View className="flex-row gap-4 mb-8">
-          <View className="flex-1 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+          <View className="flex-1 bg-white p-4 rounded-2xl border border-gray-100 relative overflow-hidden">
             <View className="absolute right-0 top-0 p-2 opacity-10 bg-green-500 rounded-bl-3xl">
               <Feather name="dollar-sign" size={40} color="black" />
             </View>
@@ -227,7 +233,7 @@ const HandymanDashboardScreen = ({ navigation }: { navigation: any }) => {
             </Text>
           </View>
 
-          <View className="flex-1 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+          <View className="flex-1 bg-white p-4 rounded-2xl border border-gray-100 relative overflow-hidden">
             <View className="absolute right-0 top-0 p-2 opacity-10 bg-blue-500 rounded-bl-3xl">
               <Feather name="briefcase" size={40} color="black" />
             </View>
@@ -250,7 +256,7 @@ const HandymanDashboardScreen = ({ navigation }: { navigation: any }) => {
         </View>
 
         {/* Rating Card (Index 2) */}
-        <View className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden mb-8">
+        <View className="bg-white p-4 rounded-2xl border border-gray-100 relative overflow-hidden mb-8">
           <View className="absolute right-0 top-0 p-3 opacity-10 bg-yellow-400 rounded-bl-3xl">
             <StarIcon size={50} color="black" />
           </View>
@@ -284,7 +290,7 @@ const HandymanDashboardScreen = ({ navigation }: { navigation: any }) => {
             <TouchableOpacity
               onPress={() => toggleActiveTab()}
               className={`flex-1 py-3 rounded-lg items-center justify-center ${
-                activeTab === "bookings" ? "bg-white shadow-sm" : ""
+                activeTab === "bookings" ? "bg-white" : ""
               }`}
             >
               <Text
@@ -298,7 +304,7 @@ const HandymanDashboardScreen = ({ navigation }: { navigation: any }) => {
             <TouchableOpacity
               onPress={() => toggleActiveTab()}
               className={`flex-1 py-3 rounded-lg items-center justify-center ${
-                activeTab === "gigs" ? "bg-white shadow-sm" : ""
+                activeTab === "gigs" ? "bg-white" : ""
               }`}
             >
               <Text
@@ -328,7 +334,7 @@ const HandymanDashboardScreen = ({ navigation }: { navigation: any }) => {
               bookings.map((booking) => (
                 <View
                   key={booking.id}
-                  className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm mb-2"
+                  className="bg-white p-5 rounded-2xl border border-gray-100 mb-2"
                 >
                   <View className="flex-row justify-between items-start mb-4">
                     <View className="flex-row gap-3 flex-1 mr-3">
@@ -444,7 +450,7 @@ const HandymanDashboardScreen = ({ navigation }: { navigation: any }) => {
               myGigs.map((gig) => (
                 <View
                   key={gig.id}
-                  className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm"
+                  className="bg-white p-5 rounded-2xl border border-gray-100"
                 >
                   <View className="flex-row justify-between items-start mb-2">
                     <View className="bg-blue-50 px-2 py-1 rounded-md">
@@ -476,7 +482,7 @@ const HandymanDashboardScreen = ({ navigation }: { navigation: any }) => {
                     <View className="flex-row gap-4">
                       <TouchableOpacity
                         onPress={() =>
-                          navigation.navigate("CreateGig", { gig })
+                          navigation.getParent()?.navigate("CreateGig", { gig })
                         }
                       >
                         <Feather name="edit-2" size={18} color="#9CA3AF" />

@@ -5,7 +5,7 @@ import { Platform } from 'react-native';
 // Use 10.0.2.2 for Android Emulator to access host localhost
 // Use localhost for iOS Simulator
 const BASE_URL = Platform.OS === 'android' 
-  ? 'http://192.168.0.122:5000/api' 
+  ? 'http://192.168.0.196:5000/api' 
   : 'http://localhost:5000/api';
 
 const api = axios.create({

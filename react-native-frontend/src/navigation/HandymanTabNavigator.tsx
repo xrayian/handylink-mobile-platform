@@ -1,13 +1,6 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import {
-  HomeIcon,
-  Cog6ToothIcon,
-} from "react-native-heroicons/outline";
-import {
-  HomeIcon as HomeSolid,
-  Cog6ToothIcon as CogSolid,
-} from "react-native-heroicons/solid";
+import { Feather } from "@expo/vector-icons";
 
 import HandymanDashboardScreen from "../screens/dashboard/HandymanDashboardScreen";
 import SettingsScreen from "../screens/SettingsScreen";
@@ -40,12 +33,9 @@ const HandymanTabNavigator = () => {
         name="Dashboard"
         component={HandymanDashboardScreen}
         options={{
-          tabBarIcon: ({ focused, color, size }) =>
-            focused ? (
-              <HomeSolid size={size} color={color} />
-            ) : (
-              <HomeIcon size={size} color={color} />
-            ),
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="home" size={size} color={color} />
+          ),
           tabBarLabel: "Dashboard",
         }}
       />
@@ -53,12 +43,9 @@ const HandymanTabNavigator = () => {
         name="HandymanSettings"
         component={SettingsScreen}
         options={{
-          tabBarIcon: ({ focused, color, size }) =>
-            focused ? (
-              <CogSolid size={size} color={color} />
-            ) : (
-              <Cog6ToothIcon size={size} color={color} />
-            ),
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="settings" size={size} color={color} />
+          ),
           tabBarLabel: "Settings",
         }}
       />
